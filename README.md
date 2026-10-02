@@ -1,0 +1,2 @@
+# Szakdoga
+Szakdolgozat - UUH869

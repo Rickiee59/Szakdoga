@@ -25,4 +25,7 @@ Az appban van 2 fül: az egyik egy lista azokról a betegekről, akik következn
 - A közös adatbázisból, ahova az app feltölti az adatokat, azokat az adminisztrátor le tudja kérni egy windows desktop appban (winform pl.)
 - Ez alapján összegzi a hónapot az ápolókra és a betegekre nézve
 - Az ápolóknak a havi bérét lehet számlázni és a betegeknek meg a kezelés költségét
+- Műszakok rögzítése és hozzárendelése az ápolókhoz
+- Új ügyfél/ápoló hozzáadás, adatok módosítása
+- Órabérek (szolgáltatás, brutto, netto) felvitele, törlése, módosítása
   

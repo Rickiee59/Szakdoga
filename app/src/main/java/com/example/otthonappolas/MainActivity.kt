@@ -78,7 +78,7 @@ class MainActivity : ComponentActivity() {
 
                         composable("list") {
                             PatientListScreen(
-                                patients = dummyPatients,
+                                patients = activePatients,
                                 onPatientClick = { selectedPatient ->
                                     navController.navigate("details/${selectedPatient.id}")
                                 }

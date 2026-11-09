@@ -1,10 +1,12 @@
 package com.example.otthonappolas
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -14,6 +16,8 @@ import java.util.Locale
 fun PatientDetailScreen(patientId: String, onBackClick: () -> Unit) {
     val patient = activePatients.find { it.id == patientId }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    var isUploading by remember { mutableStateOf(false) }
 
     var isTreatmentStarted by remember { mutableStateOf(false) }
     var startTimeString by remember { mutableStateOf("") }
@@ -85,9 +89,10 @@ fun PatientDetailScreen(patientId: String, onBackClick: () -> Unit) {
 
     if (showSignatureDialog) {
         SignatureDialog(
-            onDismiss = { showSignatureDialog = false },
+            onDismiss = { if (!isUploading) showSignatureDialog = false },
             onConfirm = {
-                showSignatureDialog = false
+                if (isUploading) return@SignatureDialog
+                isUploading = true
 
                 val endTimeString = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
                 val currentDateString = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
@@ -100,7 +105,6 @@ fun PatientDetailScreen(patientId: String, onBackClick: () -> Unit) {
                 val calculatedWage = (4500 * multiplier).toInt()
                 val calculatedCost = (6500 * multiplier).toInt()
 
-
                 val tempShift = CompletedShift(
                     patient = patient,
                     date = currentDateString,
@@ -110,14 +114,35 @@ fun PatientDetailScreen(patientId: String, onBackClick: () -> Unit) {
                     patientCost = calculatedCost
                 )
                 val pdfBytes = generateReceiptPdfBytes(tempShift)
-                val finalShift = tempShift.copy(pdfBytes = pdfBytes)
 
-                completedShifts.add(0, finalShift)
+                coroutineScope.launch {
+                    Toast.makeText(context, "Mentés a felhőbe...", Toast.LENGTH_SHORT).show()
+                    val uploadedPdfUrl = uploadShiftAndPdfToSupabase(tempShift, pdfBytes)
+                    removePatientFromActiveDb(patient.id)
 
-                sendReceiptEmail(context, finalShift)
 
-                activePatients.remove(patient)
-                onBackClick()
+                    val finalShift = tempShift.copy(
+                        pdfBytes = pdfBytes,
+                        receiptPdfUrl = uploadedPdfUrl ?: "Helyben mentve (Offline)"
+                    )
+
+                    completedShifts.add(0, finalShift)
+
+                    if (uploadedPdfUrl != null) {
+                        Toast.makeText(context, "Sikeresen mentve az adatbázisba!", Toast.LENGTH_LONG).show()
+                    } else {
+                        Toast.makeText(context, "Hiba a felhőbe mentéskor (ellenőrizd a kulcsokat!)", Toast.LENGTH_LONG).show()
+                    }
+
+                    isUploading = false
+                    showSignatureDialog = false
+
+
+                    sendReceiptEmail(context, finalShift)
+
+                    activePatients.remove(patient)
+                    onBackClick()
+                }
             }
         )
     }

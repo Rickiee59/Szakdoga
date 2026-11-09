@@ -8,7 +8,7 @@ data class Patient(
     val address: String,
     val scheduledTime: String,
     val phone: String = "+36 30 123 4567",
-    val email: String = "hozzatartozo@pelda.hu", // Ide megy majd a PDF!
+    val email: String = "hozzatartozo@pelda.hu",
     val description: String = "Általános állapotfelmérés, vérnyomásmérés, gyógyszeradagolás ellenőrzése."
 )
 
@@ -19,8 +19,8 @@ data class CompletedShift(
     val endTime: String,
     val nurseWage: Int,
     val patientCost: Int,
-    val pdfBytes: ByteArray? = null, // A generált PDF nyers adatai a feltöltéshez
-    val receiptPdfUrl: String = "Felhőbe szinkronizálva" // Az adatbázisban tárolt link
+    val pdfBytes: ByteArray? = null,
+    val receiptPdfUrl: String = "Felhőbe szinkronizálva"
 )
 
 val activePatients = mutableStateListOf(

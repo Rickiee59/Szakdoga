@@ -27,6 +27,9 @@ class MainActivity : ComponentActivity() {
             OtthonAPPolasTheme {
                 val navController = rememberNavController()
 
+                androidx.compose.runtime.LaunchedEffect(Unit) {
+                    fetchAllDataFromSupabase()
+                }
 
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
